@@ -10,8 +10,8 @@ import java.io.*;
 public class Enzyme
 {
     private String name;
-    private String regex;
-    private String restrictedAA = "";
+    private String cleavageSitePattern;
+    private String cutSide;
     
     public Enzyme(int code)
     {
@@ -19,75 +19,81 @@ public class Enzyme
         {
             case 1:
                 this.name = "Trypsin";
-                this.regex = "[^RK]*(K|R)";
-                this.restrictedAA = "P";
+                this.cleavageSitePattern = "(K|R)[^P]";
+                this.cutSide = "C-term";
                 break;
             
             case 2:
                 this.name = "Trypsin/P";
-                this.regex = "[^RK]*(K|R)";
+                this.cleavageSitePattern = "(K|R)";
+                this.cutSide = "C-term";
                 break;
             
             case 3:
                 this.name = "LysC";
-                this.regex = "[^K]*K";
-                this.restrictedAA = "P";
+                this.cleavageSitePattern = "(K)[^P]";
+                this.cutSide = "C-term";
                 break;
             
             case 4:
                 this.name = "LysC/P";
-                this.regex = "[^K]*K";
+                this.cleavageSitePattern = "K";
+                this.cutSide = "C-term";
                 break;
             
             case 5:
                 this.name = "ArgC";
-                this.regex = "[^R]*R";
-                this.restrictedAA = "P";
+                this.cleavageSitePattern = "(R)[^P]";
+                this.cutSide = "C-term";
                 break;
             
             case 6:
                 this.name = "ArgC/P";
-                this.regex = "[^R]*R";
+                this.cleavageSitePattern = "R";
+                this.cutSide = "C-term";
                 break;
             
             case 7:
                 this.name = "GluC";
-                this.regex = "[^E]*E";
+                this.cleavageSitePattern = "E";
+                this.cutSide = "C-term";
                 break;
             
             case 8:
                 this.name = "Chymotrypsin";
-                this.regex = "[^FLWY]*(F|L|W|Y)";
-                this.restrictedAA = "P";
+                this.cleavageSitePattern = "(F|L|W|Y)[^P]";
+                this.cutSide = "C-term";
                 break;
             
             case 9:
                 this.name = "PepsinA";
-                this.regex = "[^FL]*(F|L)";
+                this.cleavageSitePattern = "(F|L)";
+                this.cutSide = "C-term";
                 break;
             
             default: // 'TrypsinP'
                 this.name = "Trypsin/P";
-                this.regex = "[^RK]*(K|R)";
+                this.cleavageSitePattern = "(K|R)";
+                this.cutSide = "C-term";
                 break;
         }
     }
     
-    public Enzyme(String name, String regex, String restrictedAA)
+    public Enzyme(String name, String regex, String termini)
     {
         this.name = name;
-        this.regex = regex;
-        this.restrictedAA = restrictedAA;
+        this.cleavageSitePattern = regex;
+        this.cutSide = termini;
     }
     
-    public String getRegex()
+    public String getCleavageSitePattern()
     {
-        return regex;
+        return cleavageSitePattern;
     }
-    
-    public String getRestrictedAA()
+
+    public String getCutSide()
     {
-        return restrictedAA;
+        return cutSide;
     }
     
     public String getName()

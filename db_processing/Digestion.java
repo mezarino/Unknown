@@ -11,13 +11,15 @@ import java.util.ArrayList;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
+import molecules.Enzyme;
+
 public class Digestion 
 {
     public Digestion()
     {}
     
     
-    public static void digest(String fastaFile, String enzyme, int missed_cleavages, boolean semispecific, int min_length, int max_length, String outFile)
+    public static void digest(String fastaFile, Enzyme enzyme, int missed_cleavages, boolean semispecific, int min_length, int max_length, String outFile)
     {
         // Iterate through fasta file
         String ID = "", DE = "", seq = "";
@@ -100,7 +102,7 @@ public class Digestion
 		{ System.err.println(e.toString()); }
     }
     
-    public static void readFasta(String fastaFile, String enzyme, int missed_cleavages, int min_length, String outFile)
+    public static void readFasta(String fastaFile, Enzyme enzyme, int missed_cleavages, int min_length, String outFile)
     {
         // Iterate through fasta file
         String ID = "", seq = "";
@@ -143,87 +145,50 @@ public class Digestion
 		{ System.err.println(e.toString()); }
     }
     
-    public static List<String> getDigestion(String sequence,  String enzyme, int missed_cleavages, boolean semispecific)
+    public static List<String> getDigestion(String sequence,  Enzyme enzyme, int missed_cleavages, boolean semispecific)
     {
-        String regex, restrictedAA = null;
-        
-        switch (enzyme.toLowerCase())
-        {
-            case "trypsin":
-                regex = "[^RK]*(K|R)";
-                restrictedAA = "P";
-                break;
-            
-            case "lysc":
-                regex = "[^K]*K";
-                break;
-            
-            case "argc":
-                regex = "[^R]*R";
-                break;
-            
-            case "gluc":
-                regex = "[^E]*E";
-                break;
-            
-            default: // 'TrypsinP'
-                regex = "[^RK]*(K|R)";
-                break;
-        }
-        
-        Pattern pattern = Pattern.compile(regex);
+        String cutSide = enzyme.getCutSide();
+        Pattern pattern = Pattern.compile(enzyme.getCleavageSitePattern());
         Matcher matcher = pattern.matcher(sequence);
         List<String> digestion = new ArrayList<String>(); // try initializing with size: sequence.length() * missed_cleavages / 15
         int lastend = 0, n0 = 0;
-        String last = null;
-        
-        if (matcher.find())
+
+        if (cutSide.equals("C-term"))
         {
-            last = matcher.group();
-            lastend = matcher.end();
-        }
-        
-        while (matcher.find()) 
-        {
-            String current = matcher.group();
-            if ( restrictedAA != null && current.startsWith(restrictedAA) )
+            while (matcher.find()) 
             {
-                last = last.concat(current);
-                continue;
-            }
-            
-            digestion.add(last);
-            last = current;
-            lastend = matcher.end();
-            n0++;
-        }
-        
-        if (lastend != sequence.length())
-        {
-            String tail = sequence.substring(lastend, sequence.length());
-            
-            if ( restrictedAA != null && tail.startsWith(restrictedAA) )
-            {
-                digestion.add(last + tail);
+                String current = sequence.substring(lastend, matcher.end());
+                digestion.add(current);
+                lastend = matcher.end();
                 n0++;
             }
-            else if (last != null)
+
+            if (lastend != sequence.length())
             {
+                String last = sequence.substring(lastend, sequence.length());
                 digestion.add(last);
-                digestion.add(tail);
-                n0 += 2;
-            }
-            else
-            {
-                digestion.add(tail);
                 n0++;
             }
         }
-        else if (last != null)
+        
+        else if (cutSide.equals("N-term"))
         {
-            digestion.add(last);
-            n0++;
+            while (matcher.find()) 
+            {
+                String current = sequence.substring(lastend, matcher.start());
+                digestion.add(current);
+                lastend = matcher.start();
+                n0++;
+            }
+
+            if (lastend != sequence.length())
+            {
+                String last = sequence.substring(lastend, sequence.length());
+                digestion.add(last);
+                n0++;
+            }
         }
+        
         
         // Add miscleavaged
         for (int i = 0; i < n0; i++)
@@ -297,15 +262,17 @@ public class Digestion
     
     public static void main(String[] args) 
     {
+        Enzyme trypsin = new Enzyme(1);
         String protein = "MMRPGFKQRLIKKTTGSSSSSSSKKKDKEKEKEKSSTTSSTSKKPASASSSSHGTTHSSASSTGSKSTTEKGKQSGSVPSQGKHHSSSTSKTKTATTPSSSSSSSRSSSVSRSGSSSTKKTSSRKPRGQEQRP";
-        List<String> digestion = getDigestion(protein, "trypsin", 2, false);
+        List<String> digestion = getDigestion(protein, trypsin, 2, false);
         for (int i = 0; i < digestion.size(); i++)
         {
             System.out.println(digestion.get(i));
         }
         
         // try with a fasta file
-        digest(args[0], args[1], Integer.parseInt(args[2]), Boolean.valueOf(args[3]), Integer.parseInt(args[4]), Integer.parseInt(args[5]), args[6]);
+	Enzyme enzyme = new Enzyme(Integer.parseInt(args[1]));
+        digest(args[0], enzyme, Integer.parseInt(args[2]), Boolean.valueOf(args[3]), Integer.parseInt(args[4]), Integer.parseInt(args[5]), args[6]);
         //readFasta(args[0], args[1], Integer.parseInt(args[2]), Integer.parseInt(args[3]), args[4]);
     }
 }
