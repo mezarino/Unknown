@@ -145,7 +145,8 @@ public class ProteinsIndexation
         
         //try
         //{
-            RandomAccessFile reader = new RandomAccessFile(fastaFileName, "r");
+            //RandomAccessFile reader = new RandomAccessFile(fastaFileName, "r");
+            BufferedReader reader = new BufferedReader(new FileReader(fastaFileName));
             String line = reader.readLine();
             int counter = 0;
             

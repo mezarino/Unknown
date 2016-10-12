@@ -18,7 +18,8 @@ public class MatchPrecursorMasses
     {
         try
 		{
-            RandomAccessFile reader = new RandomAccessFile(mgfFilePath, "r");
+            //RandomAccessFile reader = new RandomAccessFile(mgfFilePath, "r");
+            BufferedReader reader = new BufferedReader(new FileReader(mgfFilePath));
             
             int i = 0;
             int scan = -1, charge = -1;
@@ -28,12 +29,10 @@ public class MatchPrecursorMasses
             int n = Integer.parseInt(hd.split("#")[1]); // the number of MS2 scans
             double[][] result = new double[n][2];
             
-            String st = reader.readLine();
+            String st = reader.readLine().trim();
             
             while (st != null)
 	        {   
-                st = st.trim();
-                
                 if (st.startsWith("TITLE="))
                 {
                     st = st.split("=")[1];
@@ -61,7 +60,7 @@ public class MatchPrecursorMasses
                 
                 else
                 {}
-                st = reader.readLine();
+                st = reader.readLine().trim();
             }
             
             reader.close();
