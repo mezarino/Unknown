@@ -2,6 +2,8 @@
 *
 */
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.RandomAccessFile;
 import java.io.PrintWriter;
 import java.util.List;
@@ -23,7 +25,8 @@ public class Digestion
         
         try
 		{   
-            RandomAccessFile reader = new RandomAccessFile(fastaFile, "r");
+            //RandomAccessFile reader = new RandomAccessFile(fastaFile, "r");
+            BufferedReader reader = new BufferedReader(new FileReader(fastaFile));
             RandomAccessFile writer1 = new RandomAccessFile(outFile+"_protein", "rw");
             RandomAccessFile writer2 = new RandomAccessFile(outFile+"_protein-index", "rw");
             String st = reader.readLine();
@@ -105,7 +108,8 @@ public class Digestion
         
         try
 		{
-            RandomAccessFile reader = new RandomAccessFile(fastaFile, "r");
+            //RandomAccessFile reader = new RandomAccessFile(fastaFile, "r");
+            BufferedReader reader = new BufferedReader(new FileReader(fastaFile));
             //RandomAccessFile writer = new RandomAccessFile(outFile, "rw");
             PrintWriter writer = new PrintWriter(outFile, "UTF-8");
             String st = reader.readLine();
